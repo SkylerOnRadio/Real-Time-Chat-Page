@@ -1,0 +1,15 @@
+{
+	"name": "chat-app",
+	"version": "1.0.0",
+	"description": "A try to create a real time chat page that can act as a communication tool",
+	"license": "MIT",
+	"author": "SkylerInAir",
+	"type": "module",
+	"main": "server.js",
+	"scripts": {
+		"start": "node --watch backend/server.js"
+	},
+	"dependencies": {
+		"express": "^5.1.0"
+	}
+}
