@@ -10,8 +10,10 @@
 		"start": "node --watch --env-file=.env backend/server.js"
 	},
 	"dependencies": {
+		"bcrypt": "^6.0.0",
 		"colors": "^1.4.0",
 		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.18.0"
 	}
 }
