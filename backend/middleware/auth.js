@@ -15,9 +15,11 @@ export const protect = expressAsyncHandler(async (req, res, next) => {
 			);
 			return next();
 		} catch (error) {
-			return res.status(403).json('Not Authorized');
+			res.status(403);
+			return next(new Error('Not Authorized.'));
 		}
 	} else {
-		return res.status(401).json('No token provided');
+		res.status(401);
+		return next(new Error('No token provided.'));
 	}
 });

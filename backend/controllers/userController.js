@@ -3,49 +3,63 @@ import bcrypt from 'bcrypt';
 import generateToken from '../utils/generateToken.js';
 import User from '../models/userModel.js';
 
-export const registerUser = async (req, res) => {
+export const registerUser = async (req, res, next) => {
 	const { username, password } = req.body;
 
-	if ((!username, !password))
-		return res.status(401).json('Please enter all the fields.');
+	if (!username || !password) {
+		res.status(400);
+		return next(new Error('Please fill all the fields!'));
+	}
 
 	const exists = await User.findOne({ username: username });
-	if (exists) return res.status(401).json('A user already exists.');
+	if (exists) {
+		res.status(400);
+		return next(new Error('User already exists.'));
+	}
 
 	const salt = await bcrypt.genSalt(10);
 	const hashed = await bcrypt.hash(password, salt);
 
 	try {
-		const user = User.create({
+		const user = await User.create({
 			username,
 			password: hashed,
 		});
 		generateToken(res, user.username);
 		res.status(201).json({ user: user.username });
 	} catch (error) {
-		res.status(500).json(`Error creating form: ${error}`);
+		res.status(500);
+		return next(new Error(`Database Error: ${error}`));
 	}
 };
 
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
 	const { username, password } = req.body;
 
-	if (!username || !password)
-		return res.status(401).json('Enter all the fields');
+	if (!username || !password) {
+		res.status(400);
+		return next(new Error('Please fill all the fields.'));
+	}
 
 	const user = await User.findOne({ username: username });
-	if (!user) return res.status(401).json('No such user exists.');
+	if (!user) {
+		res.status(400);
+		return next(new Error('User does not exist.'));
+	}
 
 	if (await bcrypt.compare(password, user.password)) {
 		generateToken(res, username);
 		res.status(200).json({ username: user.username });
-	} else res.status(400).json('Wrong Password.');
+	} else {
+		res.status(400);
+		return next(new Error('Wrong password.'));
+	}
 };
 
-export const logoutUser = async (req, res) => {
+export const logoutUser = async (req, res, next) => {
 	res.cookie('jwt', '', {
 		httpOnly: true,
-		export: new Date(0),
+		expires: new Date(0),
 	});
 	res.status(200).json('Logged out');
 };
