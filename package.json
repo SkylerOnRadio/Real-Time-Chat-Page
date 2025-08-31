@@ -7,11 +7,14 @@
 	"type": "module",
 	"main": "server.js",
 	"scripts": {
-		"start": "node --watch --env-file=.env backend/server.js"
+		"server": "node --watch --env-file=.env backend/server.js",
+		"client": "npm run dev --prefix frontend",
+		"start": "concurrently \"npm run server\" \"npm run client\""
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
 		"colors": "^1.4.0",
+		"concurrently": "^9.2.1",
 		"cookie-parser": "^1.4.7",
 		"express": "^5.1.0",
 		"express-async-handler": "^1.2.0",
