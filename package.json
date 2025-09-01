@@ -18,7 +18,9 @@
 		"cookie-parser": "^1.4.7",
 		"express": "^5.1.0",
 		"express-async-handler": "^1.2.0",
+		"framer-motion": "^12.23.12",
 		"jsonwebtoken": "^9.0.2",
+		"lucide-react": "^0.542.0",
 		"mongoose": "^8.18.0"
 	}
 }
