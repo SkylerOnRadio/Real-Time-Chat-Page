@@ -20,7 +20,7 @@ export const postMessage = expressAsyncHandler(async (req, res, next) => {
 		}
 	} catch (error) {
 		res.status(500);
-		return next(new Error('Database Error: ', error));
+		return next(new Error(`Database Error: ${error}`));
 	}
 
 	const sender = req.user._id;
@@ -47,13 +47,51 @@ export const postMessage = expressAsyncHandler(async (req, res, next) => {
 });
 
 export const getMessages = expressAsyncHandler(async (req, res, next) => {
-	const { name } = req.params;
+	const sender = req.params.id;
+	const user = req.user.id;
 
 	try {
-		const messages = await Message.find({ to: name });
+		const messages = await Message.find({
+			$or: [
+				{ from: sender, to: user },
+				{ from: user, to: sender },
+			],
+		}).sort({ createdAt: -1 });
 		res.status(200).json(messages);
 	} catch (error) {
 		res.status(500);
 		return next(new Error(`Database error: ${error.message}`));
+	}
+});
+
+export const getUniqueSenders = expressAsyncHandler(async (req, res, next) => {
+	try {
+		const user_id = req.user._id;
+		console.log(user_id);
+		const chatters = await Message.aggregate([
+			// 1. Match only messages for the receiver
+			{ $match: { to: user_id } },
+
+			// 2. Sort by createdAt DESC (latest first)
+			{ $sort: { createdAt: -1 } },
+
+			// 3. Group by senderId, take the first (latest) message
+			{
+				$group: {
+					_id: '$from',
+					message: { $first: '$text' },
+					createdAt: { $first: '$createdAt' },
+					receiverId: { $first: '$to' },
+				},
+			},
+
+			// 4. (Optional) Sort results by latest time across all senders
+			{ $sort: { createdAt: -1 } },
+		]);
+
+		res.status(201).json(chatters);
+	} catch (error) {
+		res.status(500);
+		return next(new Error(`Error: ${error.message}`));
 	}
 });

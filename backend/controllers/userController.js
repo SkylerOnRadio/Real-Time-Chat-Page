@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import expressAsyncHandler from 'express-async-handler';
 
 import generateToken from '../utils/generateToken.js';
 import User from '../models/userModel.js';
@@ -63,3 +64,23 @@ export const logoutUser = async (req, res, next) => {
 	});
 	res.status(200).json('Logged out');
 };
+
+export const getSender = expressAsyncHandler(async (req, res, next) => {
+	try {
+		const sender_id = req.params.id;
+		console.log(sender_id);
+
+		const sender = await User.findById(sender_id)
+			.select('username -_id')
+			.sort({ createdAt: -1 });
+		if (!sender) {
+			res.status(403);
+			return next(new Error('Sender does not exist.'));
+		}
+
+		res.status(200).json(sender);
+	} catch (error) {
+		res.status(500);
+		return next(new Error(`Error : ${error.message}`));
+	}
+});
