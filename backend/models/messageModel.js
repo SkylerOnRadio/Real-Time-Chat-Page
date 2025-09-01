@@ -6,8 +6,8 @@ const messageSchema = mongoose.Schema(
 			type: String,
 			required: [true, 'Have to have a message to be put.'],
 		},
-		from: { type: String, required: [true, 'Who are you?'] },
-		to: { type: String, required: [true, 'Who do you even want to talk to?'] },
+		from: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+		to: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
 	},
 	{ timestamps: true }
 );
