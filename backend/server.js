@@ -4,11 +4,13 @@ import cookieParser from 'cookie-parser';
 import { connectDb } from './config/connectDB.js';
 import messages from './routes/messagesRoutes.js';
 import users from './routes/userRoutes.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 connectDb();
 
 const app = express();
 app.use(cookieParser());
+app.use(errorHandler);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
