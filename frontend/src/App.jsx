@@ -7,13 +7,16 @@ import {
 
 import Homepage from './pages/Homepage';
 import Chatpage from './pages/Chatpage';
+import Register from './pages/RegisterPage';
+import MainLayout from './layouts/MainLayout';
 
 const App = () => {
 	const router = createBrowserRouter(
 		createRoutesFromElements(
-			<Route path="/">
+			<Route path="/" element={<MainLayout />}>
 				<Route index element={<Homepage />} />
 				<Route path="/chat" element={<Chatpage />} />
+				<Route path="/register" element={<Register />} />
 			</Route>
 		)
 	);
