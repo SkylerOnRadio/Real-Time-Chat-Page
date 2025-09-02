@@ -27,7 +27,7 @@ export const registerUser = async (req, res, next) => {
 			password: hashed,
 		});
 		generateToken(res, user.username);
-		res.status(201).json({ user: user.username });
+		res.status(201).json({ user: user.username, id: user._id });
 	} catch (error) {
 		res.status(500);
 		return next(new Error(`Database Error: ${error}`));
@@ -50,7 +50,7 @@ export const loginUser = async (req, res, next) => {
 
 	if (await bcrypt.compare(password, user.password)) {
 		generateToken(res, username);
-		res.status(200).json({ username: user.username });
+		res.status(200).json({ username: user.username, id: user._id });
 	} else {
 		res.status(400);
 		return next(new Error('Wrong password.'));

@@ -9,6 +9,7 @@ import Homepage from './pages/Homepage';
 import Chatpage from './pages/Chatpage';
 import Register from './pages/RegisterPage';
 import MainLayout from './layouts/MainLayout';
+import LoginPage from './pages/LoginPage';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -17,6 +18,7 @@ const App = () => {
 				<Route index element={<Homepage />} />
 				<Route path="/chat" element={<Chatpage />} />
 				<Route path="/register" element={<Register />} />
+				<Route path="/login" element={<LoginPage />} />
 			</Route>
 		)
 	);
