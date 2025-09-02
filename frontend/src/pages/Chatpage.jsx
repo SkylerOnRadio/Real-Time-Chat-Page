@@ -2,12 +2,23 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import SenderBar from '../components/SenderBar';
-import { getChatters, getMessages, reset } from '../features/chat/chatSlice';
+import {
+	getChatters,
+	getMessages,
+	postMessage,
+	reset,
+} from '../features/chat/chatSlice';
 import MessageList from '../components/MessageList';
 
 export default function ChatPage() {
 	const { senders, messages, isLoading } = useSelector((state) => state.chats);
 	const dispatch = useDispatch();
+
+	const [msg, setMsg] = useState('');
+
+	const onChange = (e) => {
+		setMsg(e.target.value);
+	};
 
 	const [selectedChat, setSelectedChat] = useState(null);
 
@@ -19,6 +30,13 @@ export default function ChatPage() {
 	const handleSelectChat = (sender) => {
 		setSelectedChat(sender);
 		dispatch(getMessages(sender.chatter_id));
+	};
+
+	const onClick = async () => {
+		const to = selectedChat.chatter_id;
+		const msgData = { text: msg, to };
+		dispatch(postMessage(msgData));
+		setMsg('');
 	};
 
 	return (
@@ -66,11 +84,17 @@ export default function ChatPage() {
 
 						<div className="p-4 bg-white border-t flex">
 							<input
+								onChange={onChange}
+								name="message"
+								value={msg}
 								type="text"
 								placeholder="Type a message..."
 								className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							/>
-							<button className="ml-3 px-5 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600">
+							<button
+								onClick={onClick}
+								className="ml-3 px-5 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+							>
 								Send
 							</button>
 						</div>

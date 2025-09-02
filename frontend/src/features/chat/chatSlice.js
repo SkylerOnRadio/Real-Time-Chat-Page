@@ -7,6 +7,7 @@ const messages = JSON.parse(localStorage.getItem('messages'));
 const initialState = {
 	senders: senders ? senders : [],
 	messages: messages ? messages : [],
+	newMsg: false,
 	isLoading: false,
 	isError: false,
 	isSuccess: false,
@@ -49,6 +50,24 @@ export const getMessages = createAsyncThunk(
 	}
 );
 
+export const postMessage = createAsyncThunk(
+	'/messages/add',
+	async (msgData, thunkAPI) => {
+		try {
+			return await chatService.postMessage(msgData);
+		} catch (error) {
+			const message =
+				(error.response &&
+					error.response.data &&
+					error.response.data.message) ||
+				error.message ||
+				error.toString();
+			console.log(message);
+			return thunkAPI.rejectWithValue(message);
+		}
+	}
+);
+
 export const chatSlice = createSlice({
 	name: 'chats',
 	initialState,
@@ -64,6 +83,8 @@ export const chatSlice = createSlice({
 		builder
 			.addCase(getChatters.pending, (state) => {
 				state.isLoading = true;
+				state.isError = false;
+				state.isSuccess = false;
 			})
 			.addCase(getChatters.rejected, (state, action) => {
 				state.isLoading = false;
@@ -78,6 +99,8 @@ export const chatSlice = createSlice({
 			})
 			.addCase(getMessages.pending, (state) => {
 				state.isLoading = true;
+				state.isError = false;
+				state.isSuccess = false;
 			})
 			.addCase(getMessages.rejected, (state, action) => {
 				state.isLoading = false;
@@ -89,6 +112,21 @@ export const chatSlice = createSlice({
 				state.isLoading = false;
 				state.isSuccess = true;
 				state.messages = action.payload;
+			})
+			.addCase(postMessage.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+				state.isSuccess = false;
+			})
+			.addCase(postMessage.rejected, (state, action) => {
+				state.isLoading = false;
+				state.isError = true;
+				state.message = action.payload;
+			})
+			.addCase(postMessage.fulfilled, (state, action) => {
+				state.newMsg;
+				state.isLoading = false;
+				state.isSuccess = true;
 			});
 	},
 });

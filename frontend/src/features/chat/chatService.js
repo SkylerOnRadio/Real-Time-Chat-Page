@@ -16,6 +16,12 @@ const getMessages = async (id) => {
 	return res.data;
 };
 
-const chatService = { getChatters, getMessages };
+const postMessage = async (msgData) => {
+	const res = await axios.post(API_URL, msgData);
+
+	return res.data;
+};
+
+const chatService = { getChatters, getMessages, postMessage };
 
 export default chatService;

@@ -13,7 +13,7 @@ export const postMessage = expressAsyncHandler(async (req, res, next) => {
 	let receiver;
 
 	try {
-		receiver = await User.findOne({ username: to }).select('-password');
+		receiver = await User.findById(to).select('-password');
 		if (!receiver) {
 			res.status(401);
 			return next(new Error('The receiver does not exist.'));
@@ -37,7 +37,6 @@ export const postMessage = expressAsyncHandler(async (req, res, next) => {
 			to: receiver._id,
 		});
 		res.status(201).json({
-			message: 'Message Created',
 			message: message,
 		});
 	} catch (error) {
