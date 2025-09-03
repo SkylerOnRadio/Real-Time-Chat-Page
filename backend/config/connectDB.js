@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import colors from 'colors';
 
+//connects to atlas
 const MONGO_URL =
 	process.env.MONGO_URL ||
 	'mongodb://admin:chatapp%40321@mongo:27017/chatapp?authSource=admin';
