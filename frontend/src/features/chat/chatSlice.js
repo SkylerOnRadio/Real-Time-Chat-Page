@@ -78,6 +78,10 @@ export const chatSlice = createSlice({
 			state.isLoading = false;
 			state.message = null;
 		},
+		addMessage: (state, action) => {
+			state.messages.push(action.payload);
+			state.newMsg = true;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -124,13 +128,15 @@ export const chatSlice = createSlice({
 				state.message = action.payload;
 			})
 			.addCase(postMessage.fulfilled, (state, action) => {
-				state.newMsg;
+				state.newMsg = true; // fixed
 				state.isLoading = false;
 				state.isSuccess = true;
+				state.messages.push(action.payload);
+				localStorage.setItem('messages', JSON.stringify(state.messages)); // persist
 			});
 	},
 });
 
-export const { reset } = chatSlice.actions;
+export const { reset, addMessage } = chatSlice.actions;
 
 export default chatSlice.reducer;

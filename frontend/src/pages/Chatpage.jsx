@@ -4,17 +4,21 @@ import { toast } from 'react-toastify';
 
 import SenderBar from '../components/SenderBar';
 import {
+	addMessage,
 	getChatters,
 	getMessages,
-	postMessage,
 	reset,
 } from '../features/chat/chatSlice';
 import MessageList from '../components/MessageList';
 import { getUser } from '../features/users/usersSlice';
+import { logout } from '../features/auth/authSlice'; // 👈 import logout
+import socket from '../socket';
 
 export default function ChatPage() {
 	const { senders, messages, isLoading } = useSelector((state) => state.chats);
-	const { user, isError, isSuccess } = useSelector((state) => state.user);
+	const { chatter, isError, isSuccess } = useSelector((state) => state.user);
+	const { user } = useSelector((state) => state.auth);
+
 	const dispatch = useDispatch();
 
 	const [msg, setMsg] = useState('');
@@ -26,16 +30,29 @@ export default function ChatPage() {
 		dispatch(reset());
 	}, [dispatch]);
 
+	useEffect(() => {
+		if (user?.id) {
+			socket.emit('join', user.id);
+		}
+
+		return () => {
+			socket.off('receivedMessage');
+		};
+	}, [user]);
+
 	const handleSelectChat = (sender) => {
 		setSelectedChat(sender);
 		dispatch(getMessages(sender.chatter_id));
 	};
 
 	const onClick = async () => {
-		if (!selectedChat) return;
+		if (!selectedChat || !msg.trim()) return;
 		const to = selectedChat.chatter_id;
-		const msgData = { text: msg, to };
-		dispatch(postMessage(msgData));
+		const msgData = { text: msg, to, from: user.id };
+		console.log('📤 Sending message:', msgData);
+
+		socket.emit('sendMessage', msgData);
+
 		setMsg('');
 	};
 
@@ -55,19 +72,34 @@ export default function ChatPage() {
 	};
 
 	useEffect(() => {
-		if (isSuccess && user) {
-			// If user exists, start chat
+		if (isSuccess && chatter) {
 			const newChat = {
-				username: user.username,
-				chatter_id: user._id, // adjust key if backend sends different
+				username: chatter.username,
+				chatter_id: chatter._id,
 			};
 			setSelectedChat(newChat);
 			dispatch(getMessages(newChat.chatter_id));
-		} else if (isSuccess && user == null) {
-			// If no user found
+		} else if (isSuccess && chatter == null) {
 			toast.info('No user exists with that username');
 		}
-	}, [user, isSuccess, isError, dispatch]);
+	}, [chatter, isSuccess, isError, dispatch]);
+
+	useEffect(() => {
+		socket.on('receivedMessage', (message) => {
+			console.log('📥 New message received via socket:', message);
+			dispatch(addMessage(message));
+		});
+
+		return () => {
+			socket.off('receivedMessage');
+		};
+	}, [dispatch]);
+
+	// 👇 logout handler
+	const handleLogout = () => {
+		dispatch(logout());
+		toast.success('Logged out successfully');
+	};
 
 	return (
 		<div className="h-screen w-screen flex bg-gray-100">
@@ -75,9 +107,19 @@ export default function ChatPage() {
 			<aside className="w-1/4 bg-white shadow-md flex flex-col justify-between">
 				{/* Top section */}
 				<div className="flex-1 flex flex-col">
-					<div className="p-4 border-b">
-						<h2 className="font-bold text-lg">My Profile</h2>
-						<p className="text-sm text-gray-500">Online</p>
+					<div className="p-4 border-b flex justify-between items-center">
+						<div>
+							<h2 className="font-bold text-lg">
+								{user?.username || 'My Profile'}
+							</h2>
+							<p className="text-sm text-gray-500">Online</p>
+						</div>
+						<button
+							onClick={handleLogout}
+							className="px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600"
+						>
+							Logout
+						</button>
 					</div>
 
 					<div className="overflow-y-auto flex-1">

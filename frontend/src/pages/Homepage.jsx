@@ -1,4 +1,5 @@
 import chatImg from '../assets/Chats.svg';
+import { Link } from 'react-router-dom';
 
 const Homepage = () => {
 	return (
@@ -17,9 +18,11 @@ const Homepage = () => {
 						<button className="px-4 py-2 text-gray-700 hover:text-blue-600">
 							About
 						</button>
-						<button className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium">
-							Get Started
-						</button>
+						<Link to="/login">
+							<button className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium">
+								Login
+							</button>
+						</Link>
 					</div>
 				</nav>
 
@@ -35,9 +38,11 @@ const Homepage = () => {
 							seamless collaboration.
 						</p>
 						<div className="mt-8 space-x-4">
-							<button className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg">
-								Start Chatting
-							</button>
+							<Link to="/chat">
+								<button className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg">
+									Start Chatting
+								</button>
+							</Link>
 							<button className="px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 text-lg font-medium">
 								Learn More
 							</button>

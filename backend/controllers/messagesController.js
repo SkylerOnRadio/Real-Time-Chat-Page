@@ -36,9 +36,7 @@ export const postMessage = expressAsyncHandler(async (req, res, next) => {
 			from: sender,
 			to: receiver._id,
 		});
-		res.status(201).json({
-			message: message,
-		});
+		res.status(201).json(message);
 	} catch (error) {
 		res.status(400);
 		return next(new Error(`Error occurred while creating message: ${error}`));

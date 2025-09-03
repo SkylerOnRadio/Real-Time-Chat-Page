@@ -16,6 +16,7 @@
 		"colors": "^1.4.0",
 		"concurrently": "^9.2.1",
 		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.5",
 		"express": "^5.1.0",
 		"express-async-handler": "^1.2.0",
 		"framer-motion": "^12.23.12",

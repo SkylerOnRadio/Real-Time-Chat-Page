@@ -14,6 +14,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
 router.get('/sender/:id', getSender);
-router.post('/user', getUser);
+router.get('/user', getUser);
 
 export default router;
