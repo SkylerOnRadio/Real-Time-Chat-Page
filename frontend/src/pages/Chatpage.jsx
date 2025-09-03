@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import SenderBar from '../components/SenderBar';
 import {
@@ -9,18 +10,16 @@ import {
 	reset,
 } from '../features/chat/chatSlice';
 import MessageList from '../components/MessageList';
+import { getUser } from '../features/users/usersSlice';
 
 export default function ChatPage() {
 	const { senders, messages, isLoading } = useSelector((state) => state.chats);
+	const { user, isError, isSuccess } = useSelector((state) => state.user);
 	const dispatch = useDispatch();
 
 	const [msg, setMsg] = useState('');
-
-	const onChange = (e) => {
-		setMsg(e.target.value);
-	};
-
 	const [selectedChat, setSelectedChat] = useState(null);
+	const [searchTerm, setSearchTerm] = useState('');
 
 	useEffect(() => {
 		dispatch(getChatters());
@@ -33,38 +32,88 @@ export default function ChatPage() {
 	};
 
 	const onClick = async () => {
+		if (!selectedChat) return;
 		const to = selectedChat.chatter_id;
 		const msgData = { text: msg, to };
 		dispatch(postMessage(msgData));
 		setMsg('');
 	};
 
+	// Filter senders based on searchTerm
+	const filteredSenders = senders.filter((sender) =>
+		sender.username.toLowerCase().includes(searchTerm.toLowerCase())
+	);
+
+	// Handle search submit
+	const handleSearch = async (e) => {
+		if (e.key === 'Enter') {
+			if (filteredSenders.length === 0 && searchTerm.trim()) {
+				dispatch(getUser({ username: searchTerm }));
+				setSearchTerm('');
+			}
+		}
+	};
+
+	useEffect(() => {
+		if (isSuccess && user) {
+			// If user exists, start chat
+			const newChat = {
+				username: user.username,
+				chatter_id: user._id, // adjust key if backend sends different
+			};
+			setSelectedChat(newChat);
+			dispatch(getMessages(newChat.chatter_id));
+		} else if (isSuccess && user == null) {
+			// If no user found
+			toast.info('No user exists with that username');
+		}
+	}, [user, isSuccess, isError, dispatch]);
+
 	return (
 		<div className="h-screen w-screen flex bg-gray-100">
 			{/* Sidebar */}
-			<aside className="w-1/4 bg-white shadow-md flex flex-col">
-				<div className="p-4 border-b">
-					<h2 className="font-bold text-lg">My Profile</h2>
-					<p className="text-sm text-gray-500">Online</p>
+			<aside className="w-1/4 bg-white shadow-md flex flex-col justify-between">
+				{/* Top section */}
+				<div className="flex-1 flex flex-col">
+					<div className="p-4 border-b">
+						<h2 className="font-bold text-lg">My Profile</h2>
+						<p className="text-sm text-gray-500">Online</p>
+					</div>
+
+					<div className="overflow-y-auto flex-1">
+						{isLoading ? (
+							<p className="p-4 text-gray-500">Loading chats...</p>
+						) : filteredSenders.length > 0 ? (
+							filteredSenders.map((sender) => (
+								<div
+									key={sender.username}
+									onClick={() => handleSelectChat(sender)}
+									className={`cursor-pointer ${
+										selectedChat?.username === sender.username
+											? 'bg-blue-100'
+											: ''
+									}`}
+								>
+									<SenderBar sender={sender} />
+								</div>
+							))
+						) : (
+							<p className="p-4 text-gray-500">No chats found.</p>
+						)}
+					</div>
 				</div>
 
-				{isLoading ? (
-					<p className="p-4 text-gray-500">Loading chats...</p>
-				) : senders.length > 0 ? (
-					senders.map((sender) => (
-						<div
-							key={sender.username}
-							onClick={() => handleSelectChat(sender)}
-							className={`cursor-pointer ${
-								selectedChat?.username === sender.username ? 'bg-blue-100' : ''
-							}`}
-						>
-							<SenderBar sender={sender} />
-						</div>
-					))
-				) : (
-					<p className="p-4 text-gray-500">No chats yet.</p>
-				)}
+				{/* Bottom search box */}
+				<div className="p-4 border-t">
+					<input
+						type="text"
+						placeholder="Search chats..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						onKeyDown={handleSearch}
+						className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-sm"
+					/>
+				</div>
 			</aside>
 
 			{/* Chat Area */}
@@ -84,7 +133,7 @@ export default function ChatPage() {
 
 						<div className="p-4 bg-white border-t flex">
 							<input
-								onChange={onChange}
+								onChange={(e) => setMsg(e.target.value)}
 								name="message"
 								value={msg}
 								type="text"

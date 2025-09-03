@@ -84,3 +84,16 @@ export const getSender = expressAsyncHandler(async (req, res, next) => {
 		return next(new Error(`Error : ${error.message}`));
 	}
 });
+
+export const getUser = expressAsyncHandler(async (req, res, next) => {
+	const { username } = req.body;
+
+	if (!username) {
+		res.status(400);
+		return next(new Error('Please fill all the fields.'));
+	}
+
+	const user = await User.findOne({ username: username }).select('-password');
+
+	res.status(200).json(user);
+});

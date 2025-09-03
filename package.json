@@ -21,6 +21,7 @@
 		"framer-motion": "^12.23.12",
 		"jsonwebtoken": "^9.0.2",
 		"lucide-react": "^0.542.0",
-		"mongoose": "^8.18.0"
+		"mongoose": "^8.18.0",
+		"socket.io": "^4.8.1"
 	}
 }
