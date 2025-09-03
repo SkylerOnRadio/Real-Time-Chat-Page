@@ -49,7 +49,6 @@ export default function ChatPage() {
 		if (!selectedChat || !msg.trim()) return;
 		const to = selectedChat.chatter_id;
 		const msgData = { text: msg, to, from: user.id };
-		console.log('📤 Sending message:', msgData);
 
 		socket.emit('sendMessage', msgData);
 
@@ -86,7 +85,6 @@ export default function ChatPage() {
 
 	useEffect(() => {
 		socket.on('receivedMessage', (message) => {
-			console.log('📥 New message received via socket:', message);
 			dispatch(addMessage(message));
 		});
 

@@ -26,7 +26,6 @@ export const getChatters = createAsyncThunk(
 					error.response.data.message) ||
 				error.message ||
 				error.toString();
-			console.log(message);
 			return thunkAPI.rejectWithValue(message);
 		}
 	}
@@ -44,7 +43,7 @@ export const getMessages = createAsyncThunk(
 					error.response.data.message) ||
 				error.message ||
 				error.toString();
-			console.log(message);
+
 			return thunkAPI.rejectWithValue(message);
 		}
 	}
@@ -62,7 +61,6 @@ export const postMessage = createAsyncThunk(
 					error.response.data.message) ||
 				error.message ||
 				error.toString();
-			console.log(message);
 			return thunkAPI.rejectWithValue(message);
 		}
 	}
